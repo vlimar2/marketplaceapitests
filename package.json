@@ -1,0 +1,36 @@
+{
+  "name": "marketplace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --timeout 10000 --recursive api --reporter mochawesome",
+    "testChakram": "./node_modules/mocha/bin/mocha",
+    "testChakramWin": "node .\\node_modules\\mocha\\bin\\mocha"
+  },
+  "keywords": [
+    "gruntplugin",
+    "grunt",
+    "saucelabs",
+    "test",
+    "mocha"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "chakram": "^1.4.0",
+    "mocha": "^3.0.2",
+    "module": "^1.2.5",
+    "module.js": "^2.2.4"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "chai-http": "^3.0.0",
+    "grunt": "^1.0.1",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-saucelabs": "^9.0.0",
+    "mochawesome": "^3.0.3"
+  }
+}

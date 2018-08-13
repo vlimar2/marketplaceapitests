@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Chai-Http</title>
+
+        <link href="../node_modules/mocha/mocha.css" rel="stylesheet" />
+        
+    </head>
+    <body>
+        <!-- A container element for the visual Mocha results -->
+        <div id="mocha"></div>
+
+        <script src="../node_modules/mocha/mocha.js"></script>
+        <script src="../node_modules/chai/chai.js"></script>
+        <script src="../node_modules/chai-http/dist/chai-http.js"></script>
+        <script>mocha.setup('bdd');</script>
+
+        <script src="fixture.js"></script>
+
+        <script src="../config.js"></script>
+        <script src="../util.js"></script>
+
+        <!-- SERVICES -->
+        <script src="../factories/addressfactory.js"></script>
+        <script src="../factories/participantfactory.js"></script>
+        <script src="../services/urlService.js"></script>        
+        <script src="../services/authService.js"></script>
+        <script src="../services/participantService.js"></script>        
+        <script src="../services/campaignService.js"></script>
+        <script src="../services/storeService.js"></script>
+        <script src="../services/cartService.js"></script>
+        <script src="../services/productService.js"></script>
+        <script src="../services/orderService.js"></script>
+        
+        
+
+
+        <!-- TESTS -->        
+        <script src="../api/participant.js"></script>
+        <script src="../api/campaign.js"></script>
+        <script src="../api/store.js"></script>
+        <script src="../api/cart.js"></script>
+        <script src="../api/product.js"></script>
+        <script src="../api/order.js"></script>
+        <script src="../api/auth.js"></script>
+        
+ 
+        
+        
+        
+
+        <script>                        
+
+            onload = function(){
+                env = getParameterByName('env');
+                basic = getParameterByName('basic');
+
+                var runner = mocha.run();
+                
+                var failedTests = [];
+                runner.on('end', function(){
+                    window.mochaResults = runner.stats;
+                    window.mochaResults.reports = failedTests;
+                });
+                
+                runner.on('fail', logFailure);
+                
+                function logFailure(test, err){
+                
+                    var flattenTitles = function(test){
+                            var titles = [];
+                            while (test.parent.title){
+                                titles.push(test.parent.title);
+                                test = test.parent;
+                            }
+                        
+                        return titles.reverse();
+                    };
+                    
+                    failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+                };
+            };
+        </script>
+        
+    </body>
+</html>

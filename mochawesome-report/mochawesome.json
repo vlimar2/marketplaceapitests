@@ -1,0 +1,95 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2018-07-30T14:22:54.781Z",
+    "end": "2018-07-30T14:22:56.700Z",
+    "duration": 1919,
+    "testsRegistered": 1,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false,
+    "passPercentClass": "success",
+    "pendingPercentClass": "danger"
+  },
+  "suites": {
+    "uuid": "fc4a232e-fefc-4615-8d17-20969aa95e08",
+    "title": "",
+    "fullFile": "",
+    "file": "",
+    "beforeHooks": [],
+    "afterHooks": [],
+    "tests": [],
+    "suites": [
+      {
+        "uuid": "a45a106a-f7db-42dd-a361-e0570bed8851",
+        "title": "Teste de autenticação",
+        "fullFile": "C:\\Users\\rafael.lima\\workspace\\marketplaceAPITests\\v3\\api\\auth.js",
+        "file": "\\api\\auth.js",
+        "beforeHooks": [
+          {
+            "title": "\"before all\" hook: setup",
+            "fullTitle": "Teste de autenticação \"before all\" hook: setup",
+            "timedOut": false,
+            "duration": 0,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "",
+            "err": {},
+            "isRoot": false,
+            "uuid": "21ed0d37-3412-4c17-b9e0-1ddc7258f265",
+            "isHook": true,
+            "skipped": false
+          }
+        ],
+        "afterHooks": [],
+        "tests": [
+          {
+            "title": "Deve logar no marketplace através da autenticação por aplicação cliente",
+            "fullTitle": "Teste de autenticação Deve logar no marketplace através da autenticação por aplicação cliente",
+            "timedOut": false,
+            "duration": 1902,
+            "state": "passed",
+            "speed": "slow",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "var authService = new AuthService(this);\nconsole.log('config :' + config);\nreturn authService.authClient(config.CAMPAIGN_ID)\n.then(function(response) {\n    \n    expect(response).to.have.status(config.util.HTTP.OK);\n    expect(response.error).to.equal(false);\n    expect(response.body.access_token).to.not.equal('');\n    \n});",
+            "err": {},
+            "isRoot": false,
+            "uuid": "ef5a2eba-6364-4eae-9418-48506345ae3c",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [],
+        "passes": [
+          "ef5a2eba-6364-4eae-9418-48506345ae3c"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 1902,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 10000
+      }
+    ],
+    "passes": [],
+    "failures": [],
+    "pending": [],
+    "skipped": [],
+    "duration": 0,
+    "root": true,
+    "rootEmpty": true,
+    "_timeout": 10000
+  },
+  "copyrightYear": 2018
+}
