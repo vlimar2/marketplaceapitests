@@ -5,19 +5,25 @@ var config = require('../config')
  
 var UrlService = function(that) {
 this.util = new Util(that);
-this.urls = config.env['qa']; //config.env[this.util.getEnv()];
+//this.urls = config.env['staging'];
+//this.urls = config.env[config.environment];
+this.urls = config.env['qa'];
 };
 
 UrlService.prototype.getFullUrlPrincipalApi = function() {
-    return this.urls.urlMktplaceAPI;
+    return this.urls.urlMercedesAPIqa;
 };
 
-UrlService.prototype.getFullUrlMainApi = function() {
-    return this.urls.urlMainMktplaceAPI;
+UrlService.prototype.getFullUrlPrincipalApi2 = async function() {
+    return await this.urls.urlMercedesAPIqa;
 };
 
-UrlService.prototype.getFullUrlAdminApi = function() {
-    return this.urls.urlMktplaceAdminAPI;
+UrlService.prototype.getFullUrlPrincipalApiqa = function() {
+    return this.urls.urlMercedesAPIqa;
+};
+
+UrlService.prototype.getFullUrlPrincipalApiman = function() {
+    return this.urls.urlMercedesAPIman;
 };
 
 module.exports = UrlService;

@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Run all unit tests",
+            "name": "Run API",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
@@ -16,6 +16,23 @@
                 "999999",
                 "--colors",
                 "${workspaceRoot}/api",
+                "--reporter",
+                "mochawesome"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run APP",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceRoot}/app",
                 "--reporter",
                 "mochawesome"
             ],

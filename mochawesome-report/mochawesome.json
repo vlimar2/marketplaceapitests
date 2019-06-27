@@ -2,24 +2,24 @@
   "stats": {
     "suites": 1,
     "tests": 1,
-    "passes": 1,
+    "passes": 0,
     "pending": 0,
-    "failures": 0,
-    "start": "2018-07-30T14:22:54.781Z",
-    "end": "2018-07-30T14:22:56.700Z",
-    "duration": 1919,
+    "failures": 1,
+    "start": "2019-05-31T21:08:42.159Z",
+    "end": "2019-05-31T21:08:42.995Z",
+    "duration": 836,
     "testsRegistered": 1,
-    "passPercent": 100,
+    "passPercent": 0,
     "pendingPercent": 0,
     "other": 0,
     "hasOther": false,
     "skipped": 0,
     "hasSkipped": false,
-    "passPercentClass": "success",
+    "passPercentClass": "danger",
     "pendingPercentClass": "danger"
   },
   "suites": {
-    "uuid": "fc4a232e-fefc-4615-8d17-20969aa95e08",
+    "uuid": "08d98af8-4b90-4641-b0bc-5b7c39a2bc1a",
     "title": "",
     "fullFile": "",
     "file": "",
@@ -28,23 +28,23 @@
     "tests": [],
     "suites": [
       {
-        "uuid": "a45a106a-f7db-42dd-a361-e0570bed8851",
-        "title": "Teste de autenticação",
-        "fullFile": "C:\\Users\\rafael.lima\\workspace\\marketplaceAPITests\\v3\\api\\auth.js",
-        "file": "\\api\\auth.js",
+        "uuid": "0ecce149-42f5-418a-8036-d16ffbdfc08f",
+        "title": "Testes na Api de Enquete",
+        "fullFile": "C:\\Users\\rafael.ramos\\Desktop\\LTM\\Projetos\\Mercedes\\Automacao\\Branches\\NovaEnquete\\MercedesClub-Testes\\api\\enquete.js",
+        "file": "\\api\\enquete.js",
         "beforeHooks": [
           {
             "title": "\"before all\" hook: setup",
-            "fullTitle": "Teste de autenticação \"before all\" hook: setup",
+            "fullTitle": "Testes na Api de Enquete \"before all\" hook: setup",
             "timedOut": false,
-            "duration": 0,
+            "duration": 814,
             "pass": false,
             "fail": false,
             "pending": false,
-            "code": "",
+            "code": "var acesso = new Token()\nconfig.enquete.login = config.ADMINUSERNAME\nconfig.enquete.senha = config.ADMINPASS\nconfig.enquete.client_id = config.ADMINCLIENT_ID\nconfig.enquete.token = await acesso.gerarToken(config.enquete)",
             "err": {},
             "isRoot": false,
-            "uuid": "21ed0d37-3412-4c17-b9e0-1ddc7258f265",
+            "uuid": "a58e1310-65e4-4c82-bcdf-63561e938038",
             "isHook": true,
             "skipped": false
           }
@@ -52,34 +52,36 @@
         "afterHooks": [],
         "tests": [
           {
-            "title": "Deve logar no marketplace através da autenticação por aplicação cliente",
-            "fullTitle": "Teste de autenticação Deve logar no marketplace através da autenticação por aplicação cliente",
+            "title": "Deve editar status da Enquete de ativo para inativo durante o período de vigência",
+            "fullTitle": "Testes na Api de Enquete Deve editar status da Enquete de ativo para inativo durante o período de vigência",
             "timedOut": false,
-            "duration": 1902,
-            "state": "passed",
-            "speed": "slow",
-            "pass": true,
-            "fail": false,
+            "duration": 1,
+            "state": "failed",
+            "pass": false,
+            "fail": true,
             "pending": false,
-            "code": "var authService = new AuthService(this);\nconsole.log('config :' + config);\nreturn authService.authClient(config.CAMPAIGN_ID)\n.then(function(response) {\n    \n    expect(response).to.have.status(config.util.HTTP.OK);\n    expect(response.error).to.equal(false);\n    expect(response.body.access_token).to.not.equal('');\n    \n});",
-            "err": {},
+            "code": "var enquete = new ValidaEnquete()\nawait enquete.enqueteAtivoVigente()\nawait enquete.bodyEditarenqueteAtivoInativo()\nawait enquete.editarenquete(config.enquete)",
+            "err": {
+              "message": "TypeError: Cannot read property 'length' of undefined",
+              "estack": "TypeError: Cannot read property 'length' of undefined\n    at ValidaEnquete.enqueteAtivoVigente (validation\\validaEnquete.js:59:63)"
+            },
             "isRoot": false,
-            "uuid": "ef5a2eba-6364-4eae-9418-48506345ae3c",
+            "uuid": "87ed70db-7e0a-479a-bb6e-94e89846155a",
             "isHook": false,
             "skipped": false
           }
         ],
         "suites": [],
-        "passes": [
-          "ef5a2eba-6364-4eae-9418-48506345ae3c"
+        "passes": [],
+        "failures": [
+          "87ed70db-7e0a-479a-bb6e-94e89846155a"
         ],
-        "failures": [],
         "pending": [],
         "skipped": [],
-        "duration": 1902,
+        "duration": 1,
         "root": false,
         "rootEmpty": false,
-        "_timeout": 10000
+        "_timeout": 120000
       }
     ],
     "passes": [],
@@ -89,7 +91,7 @@
     "duration": 0,
     "root": true,
     "rootEmpty": true,
-    "_timeout": 10000
+    "_timeout": 120000
   },
-  "copyrightYear": 2018
+  "copyrightYear": 2019
 }

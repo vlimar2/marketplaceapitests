@@ -3,341 +3,702 @@
 var AuthService = require('../services/authService');
 var ParticipantService = require('../services/participantService');
 var Participantfactory = require('../factories/participantfactory');
+var Util = require('../util');
 var chai = require('chai')
+let Database = require('../database/database')
 var assert = chai.assert
 var expect = chai.expect
-var token;
-var usertoken;
+var client_Id = 1
+var tokenpart
+//let Database = require('../database/database');
 
-describe('Testes na Api de Participante', function() {
+this.util = new Util();
 
-    before('setup', function() {
-        var authServiceclient = new AuthService(this);
-        var participantService = new ParticipantService(this);
+describe('Testes na Api de criação de participante', function () {
 
-        return authServiceclient.authClient(config.CAMPAIGN_ID).then(function(response) {
-            token = response.body.access_token;
 
-            return participantService.Authenticate(config.credentials.user,config.credentials.pwd,config.credentials.url).then(function(responseuser){                
-                var token = JSON.parse(responseuser.text);                
-                usertoken = token.ticket.access_token;
-            });
-        });
-    });
+    it('Deve criar um participante com perfil Frota proprietário', function () {
 
-    it('Deve autenticar participante utilizando Login e Senha', function(){
-        var participantService = new ParticipantService(this);
-
-        return participantService.Authenticate(config.credentials.user,config.credentials.pwd,config.credentials.url).then(function(response){
-            expect(response, 'Deve responder com OK no status').to.have.status(config.util.HTTP.OK);
-            expect(response.error,'Deve estar sem erros na resposta').to.equal(false);
-            expect(response.text, 'Deve retornar o token').to.not.be.undefined;
-            var token = JSON.parse(response.text);
-            expect(token.ticket, 'Deve retornar um ticket').to.not.be.undefined;
-            expect(token.ticket.access_token, 'Deve retornar um access token').to.not.be.undefined;
-            expect(parseInt(token.participantId), 'Deve retornar o mesmo participantid da autenticação').to.be.equal(config.credentials.participantId);
-        });
-    });
-
-    it('Deve impedir autenticar participante com login e senha inválidos', function(){
-        var participantService = new ParticipantService(this);
-        
-        return participantService.Authenticate(config.credentials.user,'dasdasdsadsad',config.credentials.url).then(function(response){
-            expect(response, 'Deve responder com BadRequest no status').to.have.status(config.util.HTTP.BAD_REQUEST);
-        }).catch(function(response){
-            expect(response, 'Deve responder com BadRequest no status').to.have.status(config.util.HTTP.BAD_REQUEST);
-            expect(response.response.body.errors.length,'Deve retornar um array com o erro').to.be.above(0);
-            expect(response.response.body.errors[0].message, 'Deve retornar mensagem de login inválido').to.be.equal('Usuário e/ou senha incorretos. Numero de tentativas restantes para o bloqueio: 2');                    
-        });
-    });
-
-    it('Deve criar um participante', function() {
         var factory = new Participantfactory();
+
         var currentdate = new Date();
 
-        
-        var participant = factory.buildDefault();        
-        participant.Username = "TESTEAPI1"+currentdate.getMonth()+currentdate.getDay()+currentdate.getHours()+currentdate.getMinutes();
-        var participantService = new ParticipantService(this);
+        var participant = factory.buildDefault();
 
-        return participantService.createParticipant(token,participant).then(function(response) {
-            expect(response,'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
-            expect(response.error, 'Deve retornar error como false').to.equal(false);            
-            expect(response.body.participantId, 'Deve retornar participantId maior que zero').to.be.above(0);
-        });
-    });
-
-    it('Deve criar um participante e autenticar com o mesmo', function() {
-        var factory = new Participantfactory();
-        var currentdate = new Date();
-        var authServiceclient = new AuthService(this);
-        
-        var participant = factory.buildDefault();        
-        participant.Password = '123456';
-        participant.Username = "TESTEAPI2"+currentdate.getFullYear()+currentdate.getMonth()+currentdate.getDay()+currentdate.getHours()+currentdate.getMinutes();
-        var participantService = new ParticipantService(this);
-
-        return participantService.createParticipant(token,participant).then(function(response) {
-            expect(response,'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
-            expect(response.error, 'Deve retornar error como false').to.equal(false);
-            expect(response.body.participantId, 'Deve retornar participantId maior que zero').to.be.above(0);
-                    
-            return participantService.Authenticate(participant.Username,participant.Password,config.credentials.url).then(function(responseauth){
-                expect(responseauth, 'Deve responder com OK no status').to.have.status(config.util.HTTP.OK);
-                expect(responseauth.error,'Deve estar sem erros na resposta').to.equal(false);
-                expect(responseauth.text, 'Deve retornar o token').to.not.be.undefined;
-                var token = JSON.parse(responseauth.text);
-                expect(token.ticket, 'Deve retornar um ticket').to.not.be.undefined;
-                expect(token.ticket.access_token, 'Deve retornar um access token').to.not.be.undefined;
-                expect(token.participantId, 'Deve retornar o mesmo participantid da autenticação').to.be.equal(response.body.participantId.toString());
-            }); 
-        });
-    });
-    
-   
-    it('Deve buscar e atualizar um participante', function() {
-        var factory = new Participantfactory();
-        var currentdate = new Date();
-
-        
-        var newparticipant = factory.buildDefault();        
-        newparticipant.Username = "TESTEAPI3"+currentdate.getMonth()+currentdate.getDay()+currentdate.getHours()+currentdate.getMinutes();
-        var participantService = new ParticipantService(this);
         var authService = new AuthService(this);
 
-        var participant; 
+        var database = new Database();
 
-        return participantService.createParticipant(token,newparticipant).then(function(response) {
-            expect(response).to.have.status(config.util.HTTP.OK);
-            expect(response.error).to.equal(false);            
-            expect(response.body.participantId).to.be.above(0);
+        participant.funcaoParticipante = "5945342B-CCE1-4EB8-97EE-9355A2D09337",
+            participant.funcaoParticipanteDetalhe = "5945342B-CCE1-4EB8-97EE-9355A2D09337",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota proprietário"
+        participant.client_Id = client_Id
 
-            participant = newparticipant;
-            participant.ParticipantId = response.body.participantId;
-            participant.MaritalStatusId=2;
-            participant.PersonTypeId=1;            
-            participant.Name="participante atualizado";
-            participant.CPF="72778648160";
-            participant.RG="114455236";
-            participant.CNPJ=null;
-            participant.Password="meupassatualizado";
-            participant.Gender=2;
-            participant.BirthDate="01/02/1989";
-            participant.Address[0].AddressText = "Rua teste Stub atualizado";
-            participant.Address[0].AddressName = "Minha Casa atualizado";
-            participant.Address[0].Number = "20";
-            participant.Address[0].Complement = "apto 45 atualizado";
-            participant.Address[0].District = "Bairro de teste atualizado";
-            participant.Address[0].City = "Cidada de Teste atualizado";
-            participant.Address[0].State = "MG"; 
-            participant.Address[0].ZipCode = "30320150";
-            participant.Address[0].Reference = "Próximo ao shopping atualizado";
-            participant.Phones[0].Ddd="31";
-            participant.Phones[0].Number="39548710";
-            participant.Phones[0].PhoneType=2;
-            participant.Accepts[0].OptInId=1;
-            participant.Accepts[0].Checked=false;
-            participant.Emails[0].EmailText="testeqa@teste.com";
-            participant.Emails[0].EmailType=2;
+        var participantService = new ParticipantService(this);
 
-            return participantService.updateParticipant(token,participant, 'me').then(function(responseupd){
-                expect(responseupd).to.have.status(config.util.HTTP.OK);
-                expect(responseupd.error).to.equal(false);            
-                expect(responseupd.body.participantId).to.be.above(0);
-
-                return authService.authParticipant(config.CAMPAIGN_ID, response.body.participantId).then(function(responseauth){                    
-                    var tokenparticipant = responseauth.body.access_token;
-                   
-                    return participantService.getParticipant(tokenparticipant).then(function(responseget){
-                        expect(responseget, 'Deve obter o participante atualizado com sucesso').to.have.status(config.util.HTTP.OK);
-                        expect(responseget.error, 'Deve obter o participante com a propriedade error do response como False').to.equal(false);
-                        expect(responseget.body.id, 'Deve obter o mesmo id de participante utilizado a atualização').to.equal(participant.ParticipantId);
-                        expect(responseget.body.maritalStatusId, 'Deve obter o id de estado civil atualizado').to.equal(participant.MaritalStatusId);
-                        expect(responseget.body.name, 'Deve obter o nome do participante atualizado').to.equal(participant.Name);  
-                        expect(responseget.body.cpfCnpj, 'Deve obter o cpf atualizado').to.equal(participant.CPF);
-                        expect(responseget.body.rg.number, 'Deve obter o rg atualizado').to.equal(participant.RG);
-                        expect(responseget.body.genderType, 'Deve obter o genero do participante atualizado').to.equal(participant.Gender);
-                        expect(responseget.body.address.addressText, 'Deve obter o endereço do participante atualizado').to.equal(participant.Address[0].AddressText);
-                        //expect(response.body.address.addressName).to.equal(participant.Address[0].AddressName);
-                        expect(responseget.body.address.number,'Deve obter o numero do logradouro do participante atualizado').to.equal(participant.Address[0].Number);
-                        expect(responseget.body.address.complement, 'Deve obter o complemento atualizado').to.equal(participant.Address[0].Complement);
-                        expect(responseget.body.address.district, 'Deve obter o distrito atualizado').to.equal(participant.Address[0].District);
-                        expect(responseget.body.address.city, 'Deve obter a cidade do participante atualizada').to.equal(participant.Address[0].City);
-                        expect(responseget.body.address.state, 'Deve obter o estado do logradouro do participante atualizado').to.equal(participant.Address[0].State);
-                        expect(responseget.body.address.zipCode, 'Deve obter cep do participante atualiazadp').to.equal(participant.Address[0].ZipCode);
-                        //expect(response.body.address.reference).to.equal(participant.Address[0].Reference);
-                        expect(responseget.body.phones[0].ddd,'Deve obter o DDD atualizado').to.equal(participant.Phones[0].Ddd);
-                        expect(responseget.body.phones[0].number, 'Deve obter o número de telefone do participante atualizado').to.equal(participant.Phones[0].Number);
-                        expect(responseget.body.phones[0].phoneType, 'Deve obter o tipo de telefone do participante atualizado').to.equal(participant.Phones[0].PhoneType);
-                        expect(responseget.body.email[0].emailText, 'Deve obter o email atualizado').to.equal(participant.Emails[0].EmailText);
-                        expect(responseget.body.email[0].emailType, 'Deve obter o tipo de email atualizado').to.equal(participant.Emails[0].EmailType);
-                        expect(responseget.body.accepts[0].optInId, 'Deve obter o optin do participante atualizado').to.equal(participant.Accepts[0].OptInId);
-                        expect(responseget.body.accepts[0].checked, 'Deve obter o checked do regulamento atualizado').to.equal(participant.Accepts[0].Checked);
-            
-                        var birthDate = responseget.body.birthDate.split('T')[0].split('-');
-                        expect(birthDate[1]+'/'+birthDate[2]+'/'+birthDate[0], 'Deve obter a data de nascimento atualizada').to.equal(participant.BirthDate); 
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            console.log( participant.documentoParticipante);
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                tokenpart = response.body.access_token;
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
                     });
                 });
             });
         });
-
     });
 
-    
-    it('Deve obter as informações do Participante', function() {
-        var participantService = new ParticipantService(this);               
+    it('Deve criar um participante com perfil Frota representante legal', function () {
 
-        return participantService.getParticipant(usertoken).then(function(response){
-            expect(response, 'Deve retorar OK no status da requisição').to.have.status(config.util.HTTP.OK);    
-            expect(response.body.id, 'Deve obter o mesmo Id de participante utilizado para obter o token').to.be.eql(config.credentials.participantId);    
-        });
-    });
+        var factory = new Participantfactory();
 
+        var currentdate = new Date();
 
-    it('Deve verificar se o participante esta autenticado', function(){
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "ED46B925-DC54-43E9-A3DC-8EEFBEA3577C",
+            participant.funcaoParticipanteDetalhe = "ED46B925-DC54-43E9-A3DC-8EEFBEA3577C",
+            participant.documentoParticipante = new Date().getTime().toString() + 1,
+            //participant.documentoParticipante = "",
+            participant.documentoEmpresa = new Date().getTime().toString() + 1,
+            participant.nome = "Frota representante legal"
+        participant.client_Id = client_Id
+
         var participantService = new ParticipantService(this);
 
-        return participantService.IsAuthenticate(config.credentials.user, config.credentials.pwd, config.credentials.url).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);    
-            expect(response.body).to.not.be.undefined;  
-        });
-    });
-    
-    it('Deve confirmar se o participante esta autenticado', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.IsAuthenticated(usertoken).then(function(response){
-             expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-    
-     it('Deve validar compatibilidade do browser', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getBrowserCompatibility(usertoken).then(function(response){
-             expect(response).to.have.status(config.util.HTTP.OK);
-             expect(response.body).to.be.equal(true);
-         });
-     });
-
-    it('Deve retornar o saldo de pontos do participante', function() {
-       var participantService = new ParticipantService(this);
-
-       return participantService.getBalance(usertoken).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);                
-            expect(response.body).to.be.a('number')        
-        });
-    });
-
-    it('Deve obter o histórico de saldo do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getBalanceType(usertoken, 'balanceOrigin').then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-
-     it('Deve obter o saldo bloqueado do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getBalanceType(usertoken, 'balanceOnHold').then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-
-     it('Deve obter o saldo total do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getBalanceType(usertoken, 'fullBalance').then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-
-     it('Deve obter os pontos a expirar do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getBalanceType(usertoken, 'toExpire/0').then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-
-     it('Deve obter o extrato do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getExtract(usertoken).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-         });
-     });
-
-    it('Deve obter os regulamentos do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getRegulations(usertoken).then(function(response){
-             expect(response).to.have.status(config.util.HTTP.OK);                
-             expect(response.body).to.be.a('Array')        
-         });
-     });
-
-    it('Deve obter informações do catalogo do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getCatalogParticipant(usertoken).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);    
-            expect(response.body.campaign.campaignId).to.be.eql(config.CAMPAIGN_ID);     
-             //expect(response.body).to.be.a('Array')        
-         });
-    });
-
-    it('Deve enviar o Fingerprint do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.postFingerPrint(usertoken).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-        });
-    });
-
-    it('Deve fazer a busca do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.ParticipantSearch(usertoken, config.credentials.user, config.CAMPAIGN_ID).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-        });
-    });
-
-    it('Deve autenticar o participante pelo CPF', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.ParticipantAuthCpfCnpj(config.credentials.participantdocument,config.credentials.pwd, config.Campaign_Id_pj).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-        });
-    });
-
-    it('Deve recuperar a lista de desejos do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.getWishlist(usertoken).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-        });
-    });
-
-    it('Deve adicionar um produto a lista de desejos do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.postAddWishlist(usertoken, config.PRODUCTS[0].sku).then(function(response){
-            expect(response).to.have.status(config.util.HTTP.OK);
-        });
-    });
-
-    it('Deve remover um produto a lista de desejos do participante', function() {
-        var participantService = new ParticipantService(this);
- 
-        return participantService.postAddWishlist(usertoken, config.PRODUCTS[0].sku).then(function(response){
-            expect(response, 'um produto deve ser adicionado antes de ser excluído').to.have.status(config.util.HTTP.OK);
-            
-            return participantService.postRemoveWishlist(usertoken, config.PRODUCTS[0].sku).then(function(response){
-                expect(response, 'confirmar que o produto foi deletado').to.have.status(config.util.HTTP.OK);
-                
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            console.log(participant.documentoEmpresa);
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
             });
         });
     });
+
+    it('Deve criar um participante com perfil Frota almoxarifado', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.funcaoParticipanteDetalhe = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota almoxarifado"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Frota comprador', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.funcaoParticipanteDetalhe = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota comprador"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Frota Gestor de frota', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "778261CE-A850-4F39-95CB-F0BD630AE6BC",
+            participant.funcaoParticipanteDetalhe = "778261CE-A850-4F39-95CB-F0BD630AE6BC",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota Gestor de frota"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Frota Gestor de manutenção', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "A25F81B5-6385-49FD-8DF0-8A2C6315490A",
+            participant.funcaoParticipanteDetalhe = "A25F81B5-6385-49FD-8DF0-8A2C6315490A",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota Gestor de manutenção"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Frota motorista', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "99261002-2617-4C67-824B-CC6F234D7E18",
+            participant.funcaoParticipanteDetalhe = "99261002-2617-4C67-824B-CC6F234D7E18",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota motorista"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Frota outros', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "5E3AF20B-5545-4F0A-8D8F-D218E21B67CE",
+            participant.funcaoParticipanteDetalhe = "5E3AF20B-5545-4F0A-8D8F-D218E21B67CE",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Frota outros"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina proprietário', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "54F7D870-BE1A-46AC-BAAA-2073C524E718",
+            participant.funcaoParticipanteDetalhe = "54F7D870-BE1A-46AC-BAAA-2073C524E718",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina proprietário"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina representante legal', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "DE5D8249-93BC-4046-A03B-A78D67C4E915",
+            participant.funcaoParticipanteDetalhe = "DE5D8249-93BC-4046-A03B-A78D67C4E915",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina representante legal"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina comprador', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "31FA37DE-1C15-4C68-B068-66B361F5A731",
+            participant.funcaoParticipanteDetalhe = "31FA37DE-1C15-4C68-B068-66B361F5A731",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina comprador"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina gerente', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "594C417D-3F20-452F-BA0E-AA1A44038E21",
+            participant.funcaoParticipanteDetalhe = "594C417D-3F20-452F-BA0E-AA1A44038E21",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina gerente"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina mecânico', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "7F10233D-F450-4224-9A95-EC5EC9FAA99D",
+            participant.funcaoParticipanteDetalhe = "7F10233D-F450-4224-9A95-EC5EC9FAA99D",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina mecânico"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Oficina outros', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "01ED56C6-4DD2-4EB8-A00F-9364D4D72DB0",
+            participant.funcaoParticipanteDetalhe = "01ED56C6-4DD2-4EB8-A00F-9364D4D72DB0",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Oficina outros"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve criar um participante com perfil Motorista autônomo', function () {
+
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "54786C70-B31D-4156-B1EC-46693636C307",
+            participant.funcaoParticipanteDetalhe = "54786C70-B31D-4156-B1EC-46693636C307",
+            participant.documentoParticipante = new Date().getTime().toString() +1,
+            participant.documentoEmpresa = new Date().getTime().toString() +1,
+            participant.nome = "Motorista autônomo"
+        participant.client_Id = client_Id
+
+        var participantService = new ParticipantService(this);
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+            //autentica participante
+            return authService.authParticipant(participant.documentoParticipante, participant.senha, participant.client_Id).then(function (response) {
+                expect(response).to.have.status(config.util.HTTP.OK);
+                expect(response.body.access_token).to.not.equal('');
+                //recebe participante ID de cadastro do participante criado
+                return participantService.getParticipant(tokenpart).then(function (getresponse) {
+                    expect(getresponse, 'Deve retornar status 200 ao retornar participante criado').to.have.status(config.util.HTTP.OK);
+                    expect(getresponse.body.participanteId).to.exist;
+                    //verifica se a origem do cadastro é Portal Participante
+                    return database.validaorigem(getresponse.body.participanteId).then(function (responsequery) {
+                        expect(responsequery[0].origem).to.equal("Portal Participante");
+                    });
+                });
+            });
+        });
+    });
+
+    it('Deve cadastrar participante informando cpf com mascara', async function () {
+        var participantService = new ParticipantService(this);
+        var factory = new Participantfactory();
+
+        var currentdate = new Date();
+
+        var participant = factory.buildDefault();
+
+        var authService = new AuthService(this);
+
+        var database = new Database();
+
+        participant.funcaoParticipante = "81FE735C-D2B4-4706-A33E-77DB67830B57", //perfil Frota almoxarifado
+            participant.funcaoParticipanteDetalhe = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.documentoParticipante = await participantService.cpfParticipant()
+            participant.nome = "Frota almoxarifado"
+        //participant.client_Id = client_Id
+
+        
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+        });
+    });
+
+    it('Deve cadastrar participante informando cpf sem mascara', async function () {
+        var participantService = new ParticipantService(this);
+        var factory = new Participantfactory();
+
+        var participant = factory.buildDefault();
+
+        participant.funcaoParticipante = "81FE735C-D2B4-4706-A33E-77DB67830B57", //perfil Frota almoxarifado
+            participant.funcaoParticipanteDetalhe = "81FE735C-D2B4-4706-A33E-77DB67830B57",
+            participant.documentoParticipante = await participantService.cpfParticipant()
+            participant.documentoParticipante = participant.documentoParticipante.replace('.', "");
+            participant.documentoParticipante = participant.documentoParticipante.replace('.', "");
+            participant.documentoParticipante = participant.documentoParticipante.replace('-', "");
+            participant.nome = "Frota almoxarifado"       
+
+        //cria um participante frota proprietário
+        return participantService.createParticipant(participant).then(function (response) {
+            expect(response, 'Deve retornar status 200 ao criar o participante').to.have.status(config.util.HTTP.OK);
+            expect(response.body).to.equal("Usuario criado com sucesso");
+        });
+    });
+
+
+
 });

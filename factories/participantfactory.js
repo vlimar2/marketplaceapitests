@@ -6,88 +6,71 @@ var Participantfactory = function(){
 Participantfactory.prototype.build = function()
 {
 
-    var participant = {        
-        ClientId: null,
-        ProfileId: null,
-        ParticipantStatusId: null,
-        LogonTypeId: null,
-        CatalogId: null,
-        MaritalStatusId:null,
-        PersonTypeId:null,
-        CampaignId:null,
-        Name:null,
-        CPF:null,
-        RG:null,
-        CNPJ:null,
-        Password:null,
-        Gender:null,
-        BirthDate:null,
-        Address:[{
-            AddressText:null,
-            AddressName:null,
-            Number:null,
-            Complement:null,
-            District:null,
-            City:null,
-            State:null,
-            ZipCode:null,
-            Reference:null
-        }],
-        Phones:[{
-            Ddd:null,
-            Number:null,
-            PhoneType:null
-        }],
-        Accepts:[{
-            OptInId:null,
-            Checked:null
-        }],
-        Emails:[{
-            EmailText:null,
-            EmailType:null
-        }],
-        Username:null
+    var participant = { 
+        participanteId: null,       
+        funcaoParticipante: null,
+        funcaoParticipanteDetalhe: null,
+        senha: null,
+        confirmacaoSenha: null,
+        documentoParticipante: null,
+        documentoEmpresa:null,
+        email:null,
+        nome:null,
+        telefone:null,
+        googleId:null,
+        receberNovidades:null,
+        termoAceite:null,
+        meioConfirmacao:null,
     };
 
     return participant;
 }
+// criar participante frota proprietário
 Participantfactory.prototype.buildDefault = function(){
+    var body = {
+        "funcaoParticipante": "54786C70-B31D-4156-B1EC-46693636C307",
+        "senha": "123456",
+        "confirmacaoSenha": "123456",
+        "documentoParticipante": "01386226041",
+        "email": "cursoqaltm@gmail.com",
+        "nome": "testes",
+        "receberNovidades": false,
+        "termoAceite": true,
+        "termoRelacional": false,
+        "termoTransacional": false,
+        "meioConfirmacao": "EMAIL",
+        "cidadeId": 3266,
+        "ufId": 11,
+        "celular": "(11) 90000-0000",
+        "DataNascimento": "1982-01-01T18:34:58.193Z",
+        "sexo": "ACEITE.SORTEIO;2019-04-30 15:34:58",
+        "templateEmailCadastro": "cadastroParticipante",
+        "origem": "Portal Participante"
+      }
+
+    return body;
+};
+
+//cria participante motorista autônomo
+/*Participantfactory.prototype.buildDefault = function(){
     var participant = this.build();
     
-    participant.ClientId = 88;
-    participant.ProfileId = 50637;
-    participant.ParticipantStatusId =1;
-    participant.LogonTypeId=1;
-    participant.CatalogId=40281;
-    participant.MaritalStatusId=3;
-    participant.PersonTypeId=1;
-    participant.CampaignId=30296;
-    participant.Name="participant Test";
-    participant.CPF=new Date().getTime().toString();
-    participant.RG="225545236";
-    participant.CNPJ=null;
-    participant.Password="meupass";
-    participant.Gender=1;
-    participant.BirthDate="02/07/1989";
-    participant.Address[0].AddressText = "Rua teste Stub";
-    participant.Address[0].AddressName = "Minha Casa";
-    participant.Address[0].Number = "54";
-    participant.Address[0].Complement = "apto 45";
-    participant.Address[0].District = "Bairro de teste";
-    participant.Address[0].City = "Cidada de Teste";
-    participant.Address[0].State = "SP";
-    participant.Address[0].ZipCode = "30320-150";
-    participant.Address[0].Reference = "Próximo ao shopping";
-    participant.Phones[0].Ddd="11";
-    participant.Phones[0].Number="45875478";
-    participant.Phones[0].PhoneType=1;
-    participant.Accepts[0].OptInId=1;
-    participant.Accepts[0].Checked=true;
-    participant.Emails[0].EmailText="testeqa@teste.com";
-    participant.Emails[0].EmailType=1;
-    participant.Username="";
+    participant.participanteId = "2189"
+    participant.funcaoParticipante = "FC0B26F9-E059-4446-B9EC-1F73A4BE05D6";
+    participant.funcaoParticipanteDetalhe = "54786C70-B31D-4156-B1EC-46693636C307";
+    participant.senha = "123456";
+    participant.confirmacaoSenha = "123456";
+    participant.documentoParticipante =new Date().getTime().toString();
+    participant.documentoEmpresa =new Date().getTime().toString();
+    participant.email = "rafael.lima@ltm.digital";
+    participant.nome = "Rafael Simião";
+    participant.telefone = "11974382096";
+    participant.googleId = "";
+    participant.receberNovidades = true;
+    participant.termoAceite = true;
+    participant.meioConfirmacao = "EMAIL";
 
     return participant;
-};
+};*/
 
 module.exports = Participantfactory;
